@@ -1,0 +1,45 @@
+﻿@page "/steam"
+
+<h1>Steam Games</h1>
+
+@code
+{
+
+    private static SteamGame[]? games;
+    private static Stats? stats;
+    protected override async Task OnInitializedAsync()
+    {
+        (games, stats) = await SteamStuff.Games();
+    }
+}
+
+@if (games == null)
+{
+    <p>No games in your library. If you have games, make sure your Steam WebAPI Key and Steam ID are correct and that Steam is up.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Icon</th>
+                <th>Name</th>
+                <th>Playtime</th>
+                <th>Achievements</th>
+                <th>Perfect Game?</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in games)
+            {
+                <tr>
+                    <td><img src="@game.Icon" /></td>
+                    <td>@game.Name</td>
+                    <td>@game.Playtime Hours</td>
+                    <td>@game.AchievementsEarned / @game.TotalAchievements</td>
+                    <td>@game.IsPerfectGame</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,51 @@
+﻿@page "/settings"
+@inject NavigationManager NavigationManager
+
+<h1>Settings</h1>
+
+<div class="status-message" style="color: green; margin-top: 15px;" hidden="@(!ShowResult)">
+    @Result
+</div>
+
+<EditForm Model="SM" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <fieldset>
+        <div>
+            <label for="apikey">Steam WebAPI Key</label>
+            <InputText @bind-Value="SM.APIKey" id="apikey" />
+        </div>
+        <div>
+            <label for="steamid">Steam ID</label>
+            <InputNumber @bind-Value="SM.SteamID" id="steamid" />
+        </div>
+        <div>
+            <label>&nbsp;</label>
+            <button type="submit">Submit</button>
+        </div>
+    </fieldset>
+</EditForm>
+
+<p>For your Steam WebAPI Key, go <a href="https://steamcommunity.com/dev/apikey" target="_blank">here</a> and make a key. To find your Steam ID, get on Steam and go to Account Details in the top left corner.</p>
+
+@code {
+    private SettingsModel SM = new SettingsModel();
+    private bool ShowResult = false;
+    private string Result = string.Empty;
+
+    private void HandleValidSubmit()
+    {
+        GamesLibraryApp.Settings.UpdateSettings("apikey", SM.APIKey);
+        GamesLibraryApp.Settings.UpdateSettings("steamid", SM.SteamID.ToString());
+        Result = "Your settings have been updated successfully.";
+        ShowResult = true;
+
+    }
+
+    public class SettingsModel
+    {
+        public string APIKey { get; set; } = string.Empty;
+        public long SteamID { get; set; } = 0;
+    }
+}
