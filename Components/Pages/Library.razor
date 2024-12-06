@@ -1,13 +1,15 @@
-﻿@page "/steam"
+﻿@page "/library"
 
-<h1>Steam Games</h1>
+<h1>Game Library</h1>
 
 <button @onclick="Refresh">Refresh</button>
 @code
 {
 
-    private SteamGame[]? games;
-    private Stats? stats;
+    private Game[]? games;// = new Game[0];
+    private Stats? stats;// = new Stats();
+    private SteamGame[]? steamlibrary;
+    private SteamStats? steamstats;
     protected override async Task OnInitializedAsync()
     {
         await GetGames();
@@ -18,16 +20,31 @@
         await GetGames();
     }
 
+    private void Combine(Stats s)
+    {
+        stats.TotalGames += s.TotalGames;
+        stats.TotalPlaytime += s.TotalPlaytime;
+        stats.AchievementsEarnedTotal += s.AchievementsEarnedTotal;
+        stats.AchievementsTotal += s.AchievementsTotal;
+        stats.PerfectGames += s.PerfectGames;
+    }
+
     private async Task GetGames()
     {
-        (games, stats) = await SteamStuff.Games();
+        (games, stats) = (new Game[0], new Stats());
+        (steamlibrary, steamstats) = await SteamStuff.Games();
+        if(steamlibrary.Length != 0)
+        {
+            games = games.Concat(steamlibrary).ToArray();
+            Combine(steamstats);
+        }
     }
 
 }
 
-@if (games == null)
+@if (games.Length == 0)
 {
-    <p>No games ... yet. If you have games, make sure your Steam WebAPI Key and Steam ID are correct and that Steam is up.</p>
+    <p>No games ... yet.</p>
 }
 else
 {

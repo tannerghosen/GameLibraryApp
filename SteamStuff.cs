@@ -3,26 +3,14 @@ using System.Net.Http;
 
 namespace GamesLibraryApp
 {
-    public class SteamGame
+    public class SteamGame : Game
     {
-        public string Name { get; set; }
-        public string Icon { get; set; }
 
-        public int AppId { get; set; }
-        public double Playtime { get; set; }
-        public int AchievementsEarned { get; set; }
-        public int TotalAchievements { get; set; }
-        public double Percent { get; set; }
-        public bool IsPerfectGame { get; set; }
     }
 
-    public class Stats
+    public class SteamStats : Stats
     {
-        public int TotalGames { get; set; }
-        public double TotalPlaytime { get; set; }
-        public int AchievementsEarnedTotal { get; set; }
-        public int AchievementsTotal { get; set; }
-        public int PerfectGames { get; set; }
+
     }
     public static class SteamStuff
     {
@@ -93,7 +81,7 @@ namespace GamesLibraryApp
             }
         }
 
-        public static async Task<(SteamGame[]? Games, Stats? Stats)> Games()
+        public static async Task<(SteamGame[]? Games, SteamStats? Stats)> Games()
         {
             if (await IsEverythingOK() == true)
             {
@@ -102,22 +90,23 @@ namespace GamesLibraryApp
                 {
                     JsonDocument data = JsonDocument.Parse(rawdata);
                     JsonElement games = data.RootElement.GetProperty("response").GetProperty("games");
-                    Stats Stats = new Stats();
+                    SteamStats Stats = new SteamStats();
                     List<SteamGame> Games = new List<SteamGame>();
                     // for each element in games
                     foreach (JsonElement game in games.EnumerateArray())
                     {
+                        int appid;
                         SteamGame steamgame = new SteamGame();
                         steamgame.Name = game.GetProperty("name").GetString(); // game -> name
                         steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2);
                         Stats.TotalPlaytime += steamgame.Playtime;
-                        steamgame.AppId = game.GetProperty("appid").GetInt32(); // game -> appid
-                        steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{steamgame.AppId}/{game.GetProperty("img_icon_url").GetString()}.jpg";
+                        appid = game.GetProperty("appid").GetInt32(); // game -> appid
+                        steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{game.GetProperty("img_icon_url").GetString()}.jpg";
                         // We try - catch because not every game that shows up actually has achievements or stats or anything of that nature.
                         // Additionally, not every 'game' in a user's library is a valid game (some have no data other than an appid, and aren't even counted towards the game total (I believe?)).
                         try
                         {
-                            string rawachdata = await GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={steamgame.AppId}&steamid={SteamID}&key={APIKey}");
+                            string rawachdata = await GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
                             JsonDocument achdata = JsonDocument.Parse(rawachdata);
                             JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
                             steamgame.TotalAchievements = 0;
