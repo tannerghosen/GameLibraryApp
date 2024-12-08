@@ -1,14 +1,14 @@
-﻿@page "/library"
+﻿@using System.Collections.Generic;
+@page "/"
 
 <h1>Game Library</h1>
 
 <button @onclick="Refresh">Refresh</button>
 @code
 {
-
-    private Game[]? games;// = new Game[0];
+    private List<Game> games;// = new Game[0];
     private Stats? stats;// = new Stats();
-    private SteamGame[]? steamlibrary;
+    private List<SteamGame> steamlibrary;
     private SteamStats? steamstats;
     protected override async Task OnInitializedAsync()
     {
@@ -31,18 +31,20 @@
 
     private async Task GetGames()
     {
-        (games, stats) = (new Game[0], new Stats());
+        (games, stats) = (new List<Game>(), new Stats());
+        games = new List<Game>();
+        stats = new Stats();
         (steamlibrary, steamstats) = await SteamStuff.Games();
-        if(steamlibrary.Length != 0)
+        if(steamlibrary.Count != 0)
         {
-            games = games.Concat(steamlibrary).ToArray();
+            games.AddRange(steamlibrary);
             Combine(steamstats);
         }
     }
 
 }
 
-@if (games.Length == 0)
+@if (games.Count == 0)
 {
     <p>No games ... yet.</p>
 }

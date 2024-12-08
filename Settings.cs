@@ -6,10 +6,9 @@ namespace GamesLibraryApp
     public static class Settings
     {
         private static string SettingsFile = Path.Combine(FileSystem.AppDataDirectory, "settings.json");
-        private static string APIKey = "";
+        // Steam
+        private static string SteamAPIKey = "";
         private static long SteamID = 0;
-        private static string GetOwnedGamesURL = "";
-        private static readonly HttpClient hc = new HttpClient();
 
         public static void Init()
         {
@@ -22,10 +21,9 @@ namespace GamesLibraryApp
                 string json = File.ReadAllText(SettingsFile); // read the file as a string
                 JsonDocument settings = JsonDocument.Parse(json); // parse it as a json string
 
-                APIKey = settings.RootElement.GetProperty("APIKey").GetString();
+                SteamAPIKey = settings.RootElement.GetProperty("SteamAPIKey").GetString();
                 SteamID = settings.RootElement.GetProperty("SteamID").GetInt64();
-
-                GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
+                //GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
 
                 settings.Dispose(); // end the Parse
             }
@@ -35,8 +33,8 @@ namespace GamesLibraryApp
         {
             switch (setting)
             {
-                case "apikey":
-                    APIKey = value;
+                case "sapikey":
+                    SteamAPIKey = value;
                     break;
                 case "steamid":
                     SteamID = long.Parse(value);
@@ -51,12 +49,12 @@ namespace GamesLibraryApp
         {
             // We write into our settings.json file a JSON object
             // This contains our settings.
-            string apikey = JsonSerializer.Serialize(APIKey);
+            string sapikey = JsonSerializer.Serialize(SteamAPIKey);
             long steamid = SteamID;
             using (StreamWriter writer = new StreamWriter(SettingsFile))
             {
                 writer.WriteLine("{");
-                writer.WriteLine("\"APIKey\": " + apikey + ",");
+                writer.WriteLine("\"SteamAPIKey\": " + sapikey + ",");
                 writer.WriteLine("\"SteamID\": " + steamid);
                 writer.WriteLine("}");
                 writer.Close();
@@ -65,7 +63,7 @@ namespace GamesLibraryApp
 
         public static string[] GetSteamStuff()
         {
-            return new string[] {APIKey, SteamID.ToString(), GetOwnedGamesURL};
+            return new string[] {SteamAPIKey, SteamID.ToString() };
         }
     }
 }

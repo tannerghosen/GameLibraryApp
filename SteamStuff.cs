@@ -16,7 +16,7 @@ namespace GamesLibraryApp
     {
         private static string APIKey = "";
         private static long SteamID = 0;
-        private static string GetOwnedGamesURL = "";
+        private static string GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
         private static readonly HttpClient hc = new HttpClient();
 
         public static void Init()
@@ -29,36 +29,14 @@ namespace GamesLibraryApp
             string[] settings = Settings.GetSteamStuff();
             APIKey = settings[0];
             SteamID = long.Parse(settings[1]);
-            GetOwnedGamesURL = settings[2];
+            GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
         }
         public static async Task<bool> IsSteamAPIUp()
         {
             Update();
-            try
-            {
-                var response = await hc.GetAsync(GetOwnedGamesURL);
-                return response.IsSuccessStatusCode;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static async Task<string> GetData(string url)
-        {
-            try
-            {
-                var JsonResponse = await hc.GetStringAsync(url);
-                //Console.WriteLine("JSON Success");
-                return JsonResponse;
-            }
-            catch (HttpRequestException e)
-            {
-                //Console.WriteLine("JSON Failure");
-                //Console.WriteLine(e.Message);
-                return null;
-            }
+            InternetStuff ist = new InternetStuff();
+            var response = await ist.IsSourceUp(GetOwnedGamesURL);
+            return response;
         }
 
         // called at the start of a command to ensure we can actually do stuff with it
@@ -81,11 +59,12 @@ namespace GamesLibraryApp
             }
         }
 
-        public static async Task<(SteamGame[]? Games, SteamStats? Stats)> Games()
+        public static async Task<(List<SteamGame> Games, SteamStats?)> Games()
         {
             if (await IsEverythingOK() == true)
             {
-                string rawdata = await GetData(GetOwnedGamesURL);
+                InternetStuff ist = new InternetStuff();
+                string rawdata = await ist.GetData(GetOwnedGamesURL);
                 if (rawdata != null)
                 {
                     JsonDocument data = JsonDocument.Parse(rawdata);
@@ -106,7 +85,7 @@ namespace GamesLibraryApp
                         // Additionally, not every 'game' in a user's library is a valid game (some have no data other than an appid, and aren't even counted towards the game total (I believe?)).
                         try
                         {
-                            string rawachdata = await GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
+                            string rawachdata = await ist.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
                             JsonDocument achdata = JsonDocument.Parse(rawachdata);
                             JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
                             steamgame.TotalAchievements = 0;
@@ -140,7 +119,7 @@ namespace GamesLibraryApp
                         Games.Add(steamgame);
                     }
                     Stats.TotalGames = data.RootElement.GetProperty("response").GetProperty("game_count").GetInt32();
-                    return (Games.ToArray(), Stats);
+                    return (Games, Stats);
                 }
                 else
                 {

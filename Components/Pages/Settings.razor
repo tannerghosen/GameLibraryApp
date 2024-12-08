@@ -36,7 +36,7 @@
 
     private void HandleValidSubmit()
     {
-        GamesLibraryApp.Settings.UpdateSettings("apikey", SM.APIKey);
+        GamesLibraryApp.Settings.UpdateSettings("sapikey", SM.APIKey);
         GamesLibraryApp.Settings.UpdateSettings("steamid", SM.SteamID.ToString());
         Result = "Settings updated!";
         ShowResult = true;

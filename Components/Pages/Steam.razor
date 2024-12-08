@@ -6,8 +6,8 @@
 @code
 {
 
-    private SteamGame[]? games;
-    private Stats? stats;
+    private List<SteamGame> games;
+    private SteamStats? stats;
     protected override async Task OnInitializedAsync()
     {
         await GetGames();
