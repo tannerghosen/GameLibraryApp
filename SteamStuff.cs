@@ -17,12 +17,6 @@ namespace GamesLibraryApp
         private static string APIKey = "";
         private static long SteamID = 0;
         private static string GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
-        private static readonly HttpClient hc = new HttpClient();
-
-        public static void Init()
-        {
-            hc.Timeout = TimeSpan.FromSeconds(10);
-        }
 
         public static void Update()
         {

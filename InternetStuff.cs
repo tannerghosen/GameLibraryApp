@@ -8,8 +8,8 @@ namespace GamesLibraryApp
 {
     public class TokenResponse
     {
-        public string refreshtoken { get; set; }
-        public string accesstoken { get; set; }
+        public string RefreshToken { get; set; }
+        public string AccessToken { get; set; }
     }
     public class InternetStuff
     {
@@ -52,7 +52,7 @@ namespace GamesLibraryApp
                 if (response.IsSuccessStatusCode)
                 {
                     var data = JsonSerializer.Deserialize<TokenResponse>(await response.Content.ReadAsStringAsync());
-                    return (data.refreshtoken, data.accesstoken);
+                    return (data.RefreshToken, data.AccessToken);
                 }
                 return (null, null);
             }
@@ -61,6 +61,7 @@ namespace GamesLibraryApp
                 return (null, null);
             }
         }
+
         public InternetStuff()
         {
             hc.Timeout = TimeSpan.FromSeconds(10);
