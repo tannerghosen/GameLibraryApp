@@ -7,6 +7,7 @@
     @Result
 </div>
 
+<!-- Model = class used to storer values, in this case a created object of SettingsModel called SM. -->
 <EditForm Model="SM" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -14,6 +15,7 @@
     <fieldset>
         <div>
             <label for="apikey">Steam WebAPI Key</label>
+            <!-- @bind-Value is what property of the class we want to attach this input to, for this example it's attached to SettingsModel's APIKey property. -->
             <InputText @bind-Value="SM.APIKey" id="apikey" />
         </div>
         <div>
