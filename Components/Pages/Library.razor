@@ -1,4 +1,5 @@
 ﻿@using System.Collections.Generic;
+@using GamesLibraryApp;
 @page "/"
 
 <h1>Game Library</h1>
@@ -6,8 +7,8 @@
 <button @onclick="Refresh">Refresh</button>
 @code
 {
-    private List<Game> games;// = new Game[0];
-    private Stats? stats;// = new Stats();
+    private List<Game> games;
+    private Stats? stats;
     private List<SteamGame> steamlibrary;
     private SteamStats? steamstats;
     protected override async Task OnInitializedAsync()
@@ -32,24 +33,27 @@
     private async Task GetGames()
     {
         (games, stats) = (new List<Game>(), new Stats());
-        games = new List<Game>();
-        stats = new Stats();
         (steamlibrary, steamstats) = await SteamStuff.Games();
-        if(steamlibrary.Count != 0)
+        if(steamlibrary != null) // prevents errors if this is first use
         {
-            games.AddRange(steamlibrary);
-            Combine(steamstats);
+            if(steamlibrary.Count != 0)
+            {
+                games.AddRange(steamlibrary);
+                Combine(steamstats);
+            }
         }
     }
 
 }
 
-@if (games.Count == 0)
+@if (games.Count == 0 || Settings.GetSettings()[0] == "" || Settings.GetSettings()[1] == "0")
 {
     <p>No games ... yet.</p>
 }
 else
 {
+    try
+    {
     <table class="table">
         <thead>
             <tr>
@@ -91,5 +95,11 @@ else
                 <td>@stats.PerfectGames</td>
             </tr>
         </tbody>
-    </table>
+        </table>
+    }
+    catch
+    {
+        <p>An error occured. As of this time, there's only reason this would happen.
+            <br />Make sure your Steam WebAPI Key and Steam ID are correct and that Steam is up.</p>
+    }
 }

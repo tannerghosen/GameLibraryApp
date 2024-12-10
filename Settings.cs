@@ -1,17 +1,27 @@
 ﻿using System.Text.Json;
 using System.Net.Http;
+using System.Reflection;
 
 namespace GamesLibraryApp
 {
     public static class Settings
     {
-        private static string SettingsFile = Path.Combine(FileSystem.AppDataDirectory, "settings.json");
+        private static string SettingsFile;
+
         // Steam
         private static string SteamAPIKey = "";
         private static long SteamID = 0;
 
+
         public static void Init()
         {
+#if DEBUG
+            SettingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "settings.json");
+#else
+            SettingsFile = Path.Combine(FileSystem.AppDataDirectory, "settings.json");
+#endif
+
+
             if (!File.Exists(SettingsFile))
             {
                 SaveSettings();

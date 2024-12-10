@@ -31,6 +31,8 @@
 }
 else
 {
+    try
+    {
     <table class="table">
         <thead>
             <tr>
@@ -73,4 +75,9 @@ else
             </tr>
         </tbody>
     </table>
+    }
+    catch
+    {
+        <p>An error occured. Make sure your Steam WebAPI Key and Steam ID are correct and that Steam is up.</p>
+    }
 }
