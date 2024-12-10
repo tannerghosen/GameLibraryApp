@@ -20,7 +20,7 @@ namespace GamesLibraryApp
 
         public static void Update()
         {
-            string[] settings = Settings.GetSteamStuff();
+            string[] settings = Settings.GetSettings();
             APIKey = settings[0];
             SteamID = long.Parse(settings[1]);
             GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";

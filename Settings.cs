@@ -61,7 +61,7 @@ namespace GamesLibraryApp
             }
         }
 
-        public static string[] GetSteamStuff()
+        public static string[] GetSettings()
         {
             return new string[] {SteamAPIKey, SteamID.ToString() };
         }
