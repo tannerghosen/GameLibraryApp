@@ -11,10 +11,10 @@ namespace GamesLibraryApp
         public string RefreshToken { get; set; }
         public string AccessToken { get; set; }
     }
-    public class InternetStuff
+    public static class InternetStuff
     {
-        private readonly HttpClient hc = new HttpClient();
-        public async Task<string> GetData(string url)
+        private static readonly HttpClient hc = new HttpClient();
+        public static async Task<string> GetData(string url)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace GamesLibraryApp
             }
         }
 
-        public async Task<bool> IsSourceUp(string url)
+        public static async Task<bool> IsSourceUp(string url)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace GamesLibraryApp
         }
 
         // Mockup code to get access into some APIs via OAuth.
-        public async Task<(string, string)> Login(string url, string username, string password)
+        public static async Task<(string, string)> Login(string url, string username, string password)
         {
             try
             {
