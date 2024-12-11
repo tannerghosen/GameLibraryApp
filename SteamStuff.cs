@@ -14,6 +14,7 @@ namespace GamesLibraryApp
     }
     public static class SteamStuff
     {
+        private static InternetStuff ist = new InternetStuff();
         private static string APIKey = "";
         private static long SteamID = 0;
         private static string GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
@@ -28,7 +29,6 @@ namespace GamesLibraryApp
         public static async Task<bool> IsSteamAPIUp()
         {
             Update();
-            InternetStuff ist = new InternetStuff();
             var response = await ist.IsSourceUp(GetOwnedGamesURL);
             return response;
         }
@@ -53,11 +53,11 @@ namespace GamesLibraryApp
             }
         }
 
+        // This gets the Steam Library
         public static async Task<(List<SteamGame> Games, SteamStats?)> Games()
         {
             if (await IsEverythingOK() == true)
             {
-                InternetStuff ist = new InternetStuff();
                 string rawdata = await ist.GetData(GetOwnedGamesURL);
                 if (rawdata != null)
                 {
@@ -75,41 +75,14 @@ namespace GamesLibraryApp
                         Stats.TotalPlaytime += steamgame.Playtime;
                         appid = game.GetProperty("appid").GetInt32(); // game -> appid
                         steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{game.GetProperty("img_icon_url").GetString()}.jpg";
-                        // We try - catch because not every game that shows up actually has achievements or stats or anything of that nature.
-                        // Additionally, not every 'game' in a user's library is a valid game (some have no data other than an appid, and aren't even counted towards the game total (I believe?)).
-                        try
-                        {
-                            string rawachdata = await ist.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
-                            JsonDocument achdata = JsonDocument.Parse(rawachdata);
-                            JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
-                            steamgame.TotalAchievements = 0;
-                            steamgame.AchievementsEarned = 0;
-                            // for each element in playerstats -> achievements
-                            foreach (JsonElement achievement in achievements.EnumerateArray())
-                            {
-                                steamgame.TotalAchievements++; // increase total achievements in game
-                                Stats.AchievementsTotal++; // increase total achievements overall
-                                // if achievement achieved = 1
-                                if (achievement.GetProperty("achieved").GetInt32() == 1) // achievement -> achieved
-                                {
-                                    steamgame.AchievementsEarned++; // increase earned achievements counter
-                                    Stats.AchievementsEarnedTotal++; // increase total achievements earned stats
-                                }
-                            }
-                            // Achievements Percent
-                            steamgame.Percent = Math.Round(((double)steamgame.AchievementsEarned / steamgame.TotalAchievements) * 100);
-
-                            // If percent = 100, perfect game
-                            if (steamgame.Percent == 100)
-                            {
-                                steamgame.IsPerfectGame = true;
-                                Stats.PerfectGames++;
-                            }
-                        }
-                        catch // as mentioned above, not every game has achievements!
-                        {
-
-                        }
+                        (int earn, int total, double perc, bool isperf) = await Achievements(appid);
+                        steamgame.AchievementsEarned = earn;
+                        Stats.AchievementsEarnedTotal += earn;
+                        steamgame.TotalAchievements = total;
+                        Stats.AchievementsTotal += total;
+                        steamgame.Percent = perc;
+                        steamgame.IsPerfectGame = isperf;
+                        Stats.PerfectGames += (steamgame.IsPerfectGame == true ? 1 : 0);
                         Games.Add(steamgame);
                     }
                     Stats.TotalGames = data.RootElement.GetProperty("response").GetProperty("game_count").GetInt32();
@@ -123,6 +96,40 @@ namespace GamesLibraryApp
             else
             {
                 return (null, null);
+            }
+        }
+        
+        // This gets the achievements per steam game where applicable.
+        public static async Task<(int, int, double, bool)> Achievements(int appid)
+        {
+            // We try - catch because not every game that shows up actually has achievements or stats or anything of that nature.
+            // Additionally, not every 'game' in a user's library is a valid game (some have no data other than an appid, and aren't even counted towards the game total (I believe?)).
+            try
+            {
+                string rawachdata = await ist.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
+                JsonDocument achdata = JsonDocument.Parse(rawachdata);
+                JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
+                int TotalAchievements = 0;
+                int AchievementsEarned = 0;
+                // for each element in playerstats -> achievements
+                foreach (JsonElement achievement in achievements.EnumerateArray())
+                {
+                    TotalAchievements++; // increase total achievements in game
+                                               // if achievement achieved = 1
+                    if (achievement.GetProperty("achieved").GetInt32() == 1) // achievement -> achieved
+                    {
+                        AchievementsEarned++; // increase earned achievements counter
+                    }
+                }
+                // Achievements Percent / Perfect Game
+                double Percent = Math.Round(((double)AchievementsEarned / TotalAchievements) * 100);
+                bool IsPerfectGame = (Percent == 100 ? true: false);
+
+                return (AchievementsEarned, TotalAchievements, Percent, IsPerfectGame);
+            }
+            catch // as mentioned above, not every game has achievements!
+            {
+                return (0, 0, 0, false);
             }
         }
     }
