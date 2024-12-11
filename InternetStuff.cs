@@ -62,7 +62,7 @@ namespace GamesLibraryApp
             }
         }
 
-        public InternetStuff()
+        static InternetStuff()
         {
             hc.Timeout = TimeSpan.FromSeconds(10);
         }
