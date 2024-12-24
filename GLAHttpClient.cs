@@ -11,7 +11,7 @@ namespace GamesLibraryApp
         public string RefreshToken { get; set; }
         public string AccessToken { get; set; }
     }
-    public static class InternetStuff
+    public static class GLAHttpClient
     {
         private static readonly HttpClient hc = new HttpClient();
         public static async Task<string> GetData(string url)
@@ -30,7 +30,7 @@ namespace GamesLibraryApp
             }
         }
 
-        public static async Task<bool> IsSourceUp(string url)
+        public static async Task<bool> IsUrlUp(string url)
         {
             try
             {
@@ -39,7 +39,9 @@ namespace GamesLibraryApp
             }
             catch
             {
+                Console.Error.WriteLine("ERROR: IsUrlUp: Failed to connect to the url at " + url + " .");
                 return false;
+                
             }
         }
 
@@ -62,7 +64,7 @@ namespace GamesLibraryApp
             }
         }
 
-        static InternetStuff()
+        static GLAHttpClient()
         {
             hc.Timeout = TimeSpan.FromSeconds(10);
         }

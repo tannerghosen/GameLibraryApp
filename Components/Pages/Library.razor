@@ -33,7 +33,7 @@
     private async Task GetGames()
     {
         (games, stats) = (new List<Game>(), new Stats());
-        (steamlibrary, steamstats) = await SteamStuff.Games();
+        (steamlibrary, steamstats) = await GLASteamStuff.Games();
         if(steamlibrary != null) // prevents errors if this is first use
         {
             if(steamlibrary.Count != 0)

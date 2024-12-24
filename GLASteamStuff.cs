@@ -12,11 +12,11 @@ namespace GamesLibraryApp
     {
 
     }
-    public static class SteamStuff
+    public static class GLASteamStuff
     {
         private static string APIKey = "";
         private static long SteamID = 0;
-        private static string GetOwnedGamesURL = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={APIKey}&steamid={SteamID}&format=json&include_appinfo=true&include_played_free_games=true";
+        private static string GetOwnedGamesURL = "";
 
         public static void Update()
         {
@@ -28,7 +28,7 @@ namespace GamesLibraryApp
         public static async Task<bool> IsSteamAPIUp()
         {
             Update();
-            var response = await InternetStuff.IsSourceUp(GetOwnedGamesURL);
+            var response = await GLAHttpClient.IsUrlUp(GetOwnedGamesURL);
             return response;
         }
 
@@ -57,7 +57,7 @@ namespace GamesLibraryApp
         {
             if (await IsEverythingOK() == true)
             {
-                string rawdata = await InternetStuff.GetData(GetOwnedGamesURL);
+                string rawdata = await GLAHttpClient.GetData(GetOwnedGamesURL);
                 if (rawdata != null)
                 {
                     JsonDocument data = JsonDocument.Parse(rawdata);
@@ -104,7 +104,7 @@ namespace GamesLibraryApp
             // We try - catch because not every game that shows up actually has achievements or stats or anything of that nature.
             try
             {
-                string rawachdata = await InternetStuff.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
+                string rawachdata = await GLAHttpClient.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
                 JsonDocument achdata = JsonDocument.Parse(rawachdata);
                 JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
                 int TotalAchievements = 0;
