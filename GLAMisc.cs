@@ -10,6 +10,7 @@
         public int TotalAchievements { get; set; }
         public double Percent { get; set; }
         public bool IsPerfectGame { get; set; }
+        public int Id { get; set; } // usually unused - useful for Steam, probably Epic Games, etc. if I ever add support for them
     }
     public class Stats
     {

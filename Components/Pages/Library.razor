@@ -67,13 +67,26 @@ else
         <tbody>
             @foreach (var game in games)
             {
-                <tr>
-                    <td><img src="@game.Icon" /></td>
-                    <td>@game.Name</td>
-                    <td>@game.Playtime Hours</td>
-                    <td>@game.AchievementsEarned / @game.TotalAchievements</td>
-                    <td>@(game.IsPerfectGame ? "Yes" : "No")</td>
-                </tr>
+                if(game is SteamGame)
+                {
+                    <tr>
+                        <td><a href="steam://run/@(game.Id)"><img src="@game.Icon" /></a></td>
+                        <td>@game.Name</td>
+                        <td>@game.Playtime Hours</td>
+                        <td>@game.AchievementsEarned / @game.TotalAchievements</td>
+                        <td>@(game.IsPerfectGame ? "Yes" : "No")</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td><img src="@game.Icon" /></td>
+                        <td>@game.Name</td>
+                        <td>@game.Playtime Hours</td>
+                        <td>@game.AchievementsEarned / @game.TotalAchievements</td>
+                        <td>@(game.IsPerfectGame ? "Yes" : "No")</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

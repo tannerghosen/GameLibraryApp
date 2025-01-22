@@ -5,7 +5,6 @@ namespace GamesLibraryApp
 {
     public class SteamGame : Game
     {
-
     }
 
     public class SteamStats : Stats
@@ -73,6 +72,7 @@ namespace GamesLibraryApp
                         steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2);
                         Stats.TotalPlaytime += steamgame.Playtime;
                         appid = game.GetProperty("appid").GetInt32(); // game -> appid
+                        steamgame.Id = appid;
                         steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{game.GetProperty("img_icon_url").GetString()}.jpg";
                         (int earn, int total, double perc, bool isperf) = await Achievements(appid);
                         steamgame.AchievementsEarned = earn;
