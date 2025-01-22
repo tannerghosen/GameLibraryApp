@@ -51,7 +51,7 @@ else
                     <td>@game.Name</td>
                     <td>@game.Playtime Hours</td>
                     <td>@game.AchievementsEarned / @game.TotalAchievements</td>
-                    <td>@game.IsPerfectGame</td>
+                    <td>@(game.IsPerfectGame ? "Yes" : "No")</td>
                 </tr>
             }
         </tbody>
