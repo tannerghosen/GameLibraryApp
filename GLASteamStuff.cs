@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Net.Http;
 
 namespace GamesLibraryApp
 {
@@ -27,7 +26,7 @@ namespace GamesLibraryApp
         public static async Task<bool> IsSteamAPIUp()
         {
             Update();
-            var response = await GLAHttpClient.IsUrlUp(GetOwnedGamesURL);
+            var response = await GLAHttpClient.IsUrlUp("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=440");
             return response;
         }
 

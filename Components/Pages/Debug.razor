@@ -1,0 +1,21 @@
+﻿@page "/debug"
+
+@code
+{
+    bool IsSteamUp = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await GrabDetails();
+    }
+    public async Task Refresh()
+    {
+        await GrabDetails();
+    }
+    public async Task GrabDetails()
+    {
+        IsSteamUp = await GLAHttpClient.IsUrlUp("https://api.steampowered.com/ISteamUserStats/GetNumberOfCurrentPlayers/v1/?appid=440");
+    }
+}
+<h1>Debug</h1>
+<button @onclick="Refresh">Refresh</button>
+<p>Steam API Status: @(IsSteamUp == true ? "Online" : "Offline")</p>

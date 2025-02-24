@@ -1,6 +1,40 @@
 ﻿@page "/about"
+@inject NavigationManager NavigationManager
+@code
+{
+    // This is the code for the debug page redirect
+    // Remember, the konami code, and you're there.
+    // Might rework into an easter egg later.
+    private ElementReference InputDiv;
+    private string key;
+    private List<string> keys = new List<string>();
+    private List<string> KonamiCode = new List<string> { "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a" };
+
+    private void KeyDown(KeyboardEventArgs e)
+    {
+        key = e.Key;
+        keys.Add(key);
+        if (keys.Count == 10) // if the total amount of keys inputted is 10
+        {
+            if (keys.SequenceEqual(KonamiCode)) // is keys the konami code
+            {
+                NavigationManager.NavigateTo("debug"); // redirect to debug
+            }
+            keys.RemoveAt(0); // remove first character instead of resetting the list, we could of gotten the first keys wrong but got the sequence right after that
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool FirstRender)
+    {
+        if (FirstRender)
+        {
+            await InputDiv.FocusAsync();
+        }
+    }
+}
 <h1>Game Library App</h1>
 <h3>By Tanner Ghosen</h3>
 <p>This is a .NET Maui / Blazor Hybrid App that shows you your general game statistics. So far, only Steam is supported with more platforms to be eventually be added.</p>
 <h4>Hey, I'm having an issue with the program! / How do I suggest a new feature?</h4>
 <p>Please go to the GitHub Issues Page <a href="https://github.com/tannerghosen/GameLibraryApp/issues">here</a>!</p>
+<p @onkeydown="@KeyDown" tabindex="0" @ref="InputDiv">@key</p>
