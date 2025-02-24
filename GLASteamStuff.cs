@@ -2,19 +2,19 @@
 
 namespace GamesLibraryApp
 {
-    public class SteamGame : Game
+    public class SteamGame : Game // SteamGame inherits from Game, used to differentiate between Steam and non-Steam games
     {
     }
 
-    public class SteamStats : Stats
+    public class SteamStats : Stats // SteamStats inherits from Stats, see above why we seperate them
     {
 
     }
     public static class GLASteamStuff
     {
-        private static string APIKey = "";
-        private static long SteamID = 0;
-        private static string GetOwnedGamesURL = "";
+        private static string APIKey = ""; // API Key
+        private static long SteamID = 0; // User's Steam ID
+        private static string GetOwnedGamesURL = ""; // URL to get the user's owned games
 
         public static void Update()
         {
@@ -72,6 +72,9 @@ namespace GamesLibraryApp
                         Stats.TotalPlaytime += steamgame.Playtime;
                         appid = game.GetProperty("appid").GetInt32(); // game -> appid
                         steamgame.Id = appid;
+                        // structure is media.steampowered.com/steamcommunity/public/images/apps/game's id/img's name.jpg
+                        // while img_icon_url might give the impression it's the whole url to the img, it's merely the hashed name of the image
+                        // we don't have to do anything with this hash, just put it at the end of the link and put a .jpg after it
                         steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{game.GetProperty("img_icon_url").GetString()}.jpg";
                         (int earn, int total, double perc, bool isperf) = await Achievements(appid);
                         steamgame.AchievementsEarned = earn;
