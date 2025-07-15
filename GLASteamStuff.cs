@@ -62,21 +62,19 @@ namespace GamesLibraryApp
                     JsonElement games = data.RootElement.GetProperty("response").GetProperty("games");
                     SteamStats Stats = new SteamStats();
                     List<SteamGame> Games = new List<SteamGame>();
-                    // for each element in games
+                    // for each game in games
                     foreach (JsonElement game in games.EnumerateArray())
                     {
-                        int appid;
                         SteamGame steamgame = new SteamGame();
                         steamgame.Name = game.GetProperty("name").GetString(); // game -> name
-                        steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2);
-                        Stats.TotalPlaytime += steamgame.Playtime;
-                        appid = game.GetProperty("appid").GetInt32(); // game -> appid
-                        steamgame.Id = appid;
+                        steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2); // round the playertime to 2 decimal points
+                        Stats.TotalPlaytime += steamgame.Playtime; // add it to the total
+                        steamgame.Id = game.GetProperty("appid").GetInt32(); // game -> appid
                         // structure is media.steampowered.com/steamcommunity/public/images/apps/game's id/img's name.jpg
                         // while img_icon_url might give the impression it's the whole url to the img, it's merely the hashed name of the image
                         // we don't have to do anything with this hash, just put it at the end of the link and put a .jpg after it
-                        steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{game.GetProperty("img_icon_url").GetString()}.jpg";
-                        (int earn, int total, double perc, bool isperf) = await Achievements(appid);
+                        steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{steamgame.Id}/{game.GetProperty("img_icon_url").GetString()}.jpg";
+                        (int earn, int total, double perc, bool isperf) = await Achievements(steamgame.Id); // now we get the achievements for the current game (if possible)
                         steamgame.AchievementsEarned = earn;
                         Stats.AchievementsEarnedTotal += earn;
                         steamgame.TotalAchievements = total;
@@ -108,15 +106,15 @@ namespace GamesLibraryApp
             {
                 string rawachdata = await GLAHttpClient.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
                 JsonDocument achdata = JsonDocument.Parse(rawachdata);
-                JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements");
+                JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements"); // achievements element
                 int TotalAchievements = 0;
                 int AchievementsEarned = 0;
-                // for each element in playerstats -> achievements
+                // for each achievement in playerstats -> achievements
                 foreach (JsonElement achievement in achievements.EnumerateArray())
                 {
                     TotalAchievements++; // increase total achievements in game
-                                               // if achievement achieved = 1
-                    if (achievement.GetProperty("achieved").GetInt32() == 1) // achievement -> achieved
+                    // achieved is a child property of the achievement propety
+                    if (achievement.GetProperty("achieved").GetInt32() == 1) // if achievement achieved = 1
                     {
                         AchievementsEarned++; // increase earned achievements counter
                     }
