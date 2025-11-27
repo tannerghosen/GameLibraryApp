@@ -7,7 +7,6 @@ namespace GamesLibraryApp
         public static MauiApp CreateMauiApp()
         {
             Settings.Init();
-            GLASQL.Init();
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()

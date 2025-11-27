@@ -40,6 +40,7 @@ else
                 <th>Name</th>
                 <th>Playtime</th>
                 <th>Achievements</th>
+                <th>Achievements Achieved Percentage</th>
                 <th>Perfect Game?</th>
             </tr>
         </thead>
@@ -51,6 +52,7 @@ else
                     <td>@game.Name</td>
                     <td>@game.Playtime Hours</td>
                     <td>@game.AchievementsEarned / @game.TotalAchievements</td>
+                    <td>@game.Percent%</td>
                     <td>@(game.IsPerfectGame ? "Yes" : "No")</td>
                 </tr>
             }

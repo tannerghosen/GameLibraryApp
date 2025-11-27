@@ -59,7 +59,7 @@ namespace GamesLibraryApp
                 if (rawdata != null)
                 {
                     JsonDocument data = JsonDocument.Parse(rawdata);
-                    JsonElement games = data.RootElement.GetProperty("response").GetProperty("games");
+                    JsonElement games = data.RootElement.GetProperty("response").GetProperty("games"); // response -> games
                     SteamStats Stats = new SteamStats();
                     List<SteamGame> Games = new List<SteamGame>();
                     // for each game in games
@@ -67,7 +67,7 @@ namespace GamesLibraryApp
                     {
                         SteamGame steamgame = new SteamGame();
                         steamgame.Name = game.GetProperty("name").GetString(); // game -> name
-                        steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2); // round the playertime to 2 decimal points
+                        steamgame.Playtime = Math.Round(game.GetProperty("playtime_forever").GetDouble() / 60, 2); // game -> playtime_forever ; round the playertime to 2 decimal points
                         Stats.TotalPlaytime += steamgame.Playtime; // add it to the total
                         steamgame.Id = game.GetProperty("appid").GetInt32(); // game -> appid
                         // structure is media.steampowered.com/steamcommunity/public/images/apps/game's id/img's name.jpg
@@ -76,9 +76,9 @@ namespace GamesLibraryApp
                         steamgame.Icon = $"https://media.steampowered.com/steamcommunity/public/images/apps/{steamgame.Id}/{game.GetProperty("img_icon_url").GetString()}.jpg";
                         (int earn, int total, double perc, bool isperf) = await Achievements(steamgame.Id); // now we get the achievements for the current game (if possible)
                         steamgame.AchievementsEarned = earn;
-                        Stats.AchievementsEarnedTotal += earn;
+                        Stats.AchievementsEarnedTotal += earn; // add the earned total to the earned total overall
                         steamgame.TotalAchievements = total;
-                        Stats.AchievementsTotal += total;
+                        Stats.AchievementsTotal += total; // add the achievement count total to the overall achievement count total 
                         steamgame.Percent = perc;
                         steamgame.IsPerfectGame = isperf;
                         Stats.PerfectGames += (steamgame.IsPerfectGame == true ? 1 : 0);
@@ -106,10 +106,10 @@ namespace GamesLibraryApp
             {
                 string rawachdata = await GLAHttpClient.GetData($"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?appid={appid}&steamid={SteamID}&key={APIKey}");
                 JsonDocument achdata = JsonDocument.Parse(rawachdata);
-                JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements"); // achievements element
+                JsonElement achievements = achdata.RootElement.GetProperty("playerstats").GetProperty("achievements"); // playerstats -> achievements
                 int TotalAchievements = 0;
                 int AchievementsEarned = 0;
-                // for each achievement in playerstats -> achievements
+                // for each achievement property in playerstats -> achievements
                 foreach (JsonElement achievement in achievements.EnumerateArray())
                 {
                     TotalAchievements++; // increase total achievements in game
