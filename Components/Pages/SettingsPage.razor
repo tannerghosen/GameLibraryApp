@@ -47,7 +47,7 @@
 
     public class SettingsModel
     {
-        public string APIKey { get; set; } = string.Empty;
-        public long SteamID { get; set; } = 0;
+        public string APIKey { get; set; } = GamesLibraryApp.Settings.GetSettings()[0];
+        public long SteamID { get; set; } = long.Parse(GamesLibraryApp.Settings.GetSettings()[1]);
     }
 }
